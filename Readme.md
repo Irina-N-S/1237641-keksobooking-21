@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ирина Соколовская](https://up.htmlacademy.ru/javascript/21/user/1237641).
-* Наставник: `Неизвестно`.
+* Наставник: [Даниил Стерликов](https://htmlacademy.ru/profile/id1588317).
 
 ---
 
