@@ -56,6 +56,18 @@ const getRandomArrayElements = function (source) {
   return result;
 };
 
+const plural = function (forms, number) {
+  let index;
+  if (number % 10 === 1 && number % 100 !== 11) {
+    index = 0; // many
+  } else if (number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20)) {
+    index = 1; // few
+  } else {
+    index = 2; // one
+  }
+  return forms[index] || ``;
+};
+
 const generateOffersArray = function (size) {
   const avatarGenerator = {
     stackOfAvatars: [],
@@ -162,9 +174,9 @@ const createOfferCardFragment = function (info) {
       element.remove();
       return;
     }
-    let text = `${info.offer.rooms} комнаты`;
+    let text = `${info.offer.rooms} ${plural([`комната`, `комнаты`, `комнат`], info.offer.rooms)}`;
     if (guestCount) {
-      text += ` для ${info.offer.guests} гостей`;
+      text += ` для ${info.offer.guests} ${plural([`гость`, `гостей`, `гостей`], info.offer.guests)}`;
     }
     element.textContent = text;
   };
@@ -230,6 +242,32 @@ const createOfferCardFragment = function (info) {
     avatarElement.remove();
   };
 
+  const getOfferTypeName = function (type) {
+    let name = `Квартира`;
+    switch (type) {
+      case `bungalow`:
+        name = `Бунгало`;
+        break;
+
+      case `house`:
+        name = `Дом`;
+        break;
+
+      case `palace`:
+        name = `Дворец`;
+        break;
+
+      case `flat`:
+        name = `Квартира`;
+        break;
+
+      default:
+        name = ``;
+        break;
+    }
+    return name;
+  };
+
   const cardElement = document
     .getElementById(`card`)
     .content
@@ -240,25 +278,7 @@ const createOfferCardFragment = function (info) {
 
   setupPrice(cardElement, info.offer.price);
 
-  let ruOfferType = `Квартира`;
-  switch (info.offer.type) {
-    case `bungalow`:
-      ruOfferType = `Бунгало`;
-      break;
-
-    case `house`:
-      ruOfferType = `Дом`;
-      break;
-
-    case `palace`:
-      ruOfferType = `Дворец`;
-      break;
-
-    case `flat`:
-    default:
-      break;
-  }
-  setContentOrRemove(cardElement.querySelector(`h4.popup__type`), ruOfferType);
+  setContentOrRemove(cardElement.querySelector(`h4.popup__type`), getOfferTypeName(info.offer.type));
   setupCapacity(cardElement, info.offer.rooms, info.offer.guests);
   setupCheckinCheckout(cardElement, info.offer.checkin, info.offer.checkout);
 
@@ -277,21 +297,16 @@ const main = function () {
   const mapFiltersContainer = map.querySelector(`.map__filters-container`);
   map.classList.remove(`map--faded`);
 
-  let first = true;
-  generateOffersArray(MOCK_SET_COUNT)
-    .filter(function () {
-      if (first) {
-        first = false;
-        return true;
-      }
-      return false;
-    })
+  const offerInfos = generateOffersArray(MOCK_SET_COUNT);
+  offerInfos
     .forEach(function (info) {
       const pinFragment = createPinDocumentFragment(info);
-      const offerCard = createOfferCardFragment(info);
       mapPins.appendChild(pinFragment);
-      map.insertBefore(offerCard, mapFiltersContainer);
     });
+
+  const firstOfferInfo = offerInfos[0];
+  const offerCard = createOfferCardFragment(firstOfferInfo);
+  map.insertBefore(offerCard, mapFiltersContainer);
 };
 
 main();
